@@ -44,8 +44,8 @@ router.get('/:hospitalId/:date', async (req, res) => {
     const dayOfWeek = requestedDate.day();
     if (dayOfWeek === 5) {
       return res.json({ 
-        slots: [],
-        message: 'Both hospitals are closed on Fridays'
+        message: 'Both hospitals are closed on Fridays',
+        slots: []
       });
     }
     

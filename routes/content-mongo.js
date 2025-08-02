@@ -3,8 +3,29 @@ import Content from '../models/Content.js';
 import User from '../models/User.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { validateContent } from '../middleware/validation.js';
+import NodeCache from 'node-cache';
 
 const router = express.Router();
+
+// Initialize cache with 15 minute TTL
+const cache = new NodeCache({ 
+  stdTTL: 900, // 15 minutes
+  checkperiod: 120, // Check for expired keys every 2 minutes
+  useClones: false
+});
+
+// Cache keys
+const CACHE_KEYS = {
+  PUBLIC_CONTENT: 'public_content',
+  ADMIN_CONTENT: 'admin_content',
+  CONTENT_STATS: 'content_stats',
+  FEATURED_CONTENT: 'featured_content'
+};
+
+// Helper function to clear relevant cache
+const clearContentCache = () => {
+  cache.del([CACHE_KEYS.PUBLIC_CONTENT, CACHE_KEYS.ADMIN_CONTENT, CACHE_KEYS.CONTENT_STATS, CACHE_KEYS.FEATURED_CONTENT]);
+};
 
 // Get all published content (public endpoint)
 router.get('/', async (req, res) => {
