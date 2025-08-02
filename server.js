@@ -40,17 +40,26 @@ app.use('/api/', limiter);
 // CORS configuration for main domain and portal subdomain
 const allowedOrigins = [
   process.env.CLIENT_URL || 'http://localhost:5173', // Local development
-  'https://drganeshcs.com', // Main domain
+  process.env.MAIN_DOMAIN || 'https://drganeshcs.com', // Main domain from env
   'https://www.drganeshcs.com', // Main domain with www
-  'https://portal.drganeshcs.com', // Portal subdomain
+  process.env.PORTAL_DOMAIN || 'https://portal.drganeshcs.com', // Portal subdomain from env
+  'https://portal.drganeshcs.com', // Portal subdomain (hardcoded backup)
+  'https://drganeshcs.com', // Main domain (hardcoded backup)
   'http://localhost:3000', // Alternative local port
   'http://localhost:5174', // Alternative local port
+  'http://localhost:5173', // Vite default port
 ];
 
 // If in development, allow all localhost origins
 if (process.env.NODE_ENV === 'development') {
   allowedOrigins.push(/^http:\/\/localhost:\d+$/);
 }
+
+console.log('🔧 CORS Configuration:');
+console.log('📋 Allowed Origins:', allowedOrigins);
+console.log('🌍 Environment:', process.env.NODE_ENV);
+console.log('🏥 Portal Domain:', process.env.PORTAL_DOMAIN);
+console.log('🏠 Main Domain:', process.env.MAIN_DOMAIN);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -108,6 +117,17 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     uptime: process.uptime() 
+  });
+});
+
+// CORS test endpoint
+app.get('/api/cors-test', (req, res) => {
+  res.json({ 
+    message: 'CORS is working!',
+    origin: req.headers.origin,
+    userAgent: req.headers['user-agent'],
+    timestamp: new Date().toISOString(),
+    allowedOrigins: allowedOrigins
   });
 });
 
