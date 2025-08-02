@@ -71,11 +71,21 @@ export const validateContent = (req, res, next) => {
   const schema = Joi.object({
     title: Joi.string().min(5).max(500).required(),
     description: Joi.string().max(2000).optional(),
-    url: Joi.string().uri().required(),
-    platform: Joi.string().valid('youtube', 'facebook').required(),
+    content_url: Joi.string().uri().required(),
+    content_type: Joi.string().valid('youtube', 'facebook', 'article', 'image', 'video').required(),
+    thumbnail_url: Joi.string().uri().optional(),
     category: Joi.string().max(100).optional(),
     tags: Joi.array().items(Joi.string().max(50)).optional(),
-    is_published: Joi.boolean().optional()
+    is_published: Joi.boolean().optional(),
+    is_featured: Joi.boolean().optional(),
+    metadata: Joi.object({
+      duration: Joi.string().optional(),
+      file_size: Joi.number().optional(),
+      dimensions: Joi.object({
+        width: Joi.number().optional(),
+        height: Joi.number().optional()
+      }).optional()
+    }).optional()
   });
 
   const { error } = schema.validate(req.body);
@@ -87,20 +97,20 @@ export const validateContent = (req, res, next) => {
   }
 
   // Additional URL validation for platforms
-  const { url, platform } = req.body;
+  const { content_url, content_type } = req.body;
   
-  if (platform === 'youtube') {
+  if (content_type === 'youtube') {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/)|youtu\.be\/)/;
-    if (!youtubeRegex.test(url)) {
+    if (!youtubeRegex.test(content_url)) {
       return res.status(400).json({ 
         error: 'Invalid YouTube URL format' 
       });
     }
   }
 
-  if (platform === 'facebook') {
+  if (content_type === 'facebook') {
     const facebookRegex = /^(https?:\/\/)?(www\.)?facebook\.com\//;
-    if (!facebookRegex.test(url)) {
+    if (!facebookRegex.test(content_url)) {
       return res.status(400).json({ 
         error: 'Invalid Facebook URL format' 
       });

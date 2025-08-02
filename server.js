@@ -11,7 +11,7 @@ import connectDB from './config/database.js';
 
 // Import routes
 import appointmentRoutes from './routes/appointments.js';
-import contentRoutes from './routes/content.js';
+import contentRoutes from './routes/content-mongo.js';
 import contactRoutes from './routes/contact.js';
 import reviewRoutes from './routes/reviews.js';
 import authRoutes from './routes/auth.js';
