@@ -12,7 +12,8 @@
     "create-admin": "node scripts/create-admin.js",
     "create-admin-production": "node scripts/create-admin-production.js",
     "test-admin": "node scripts/test-admin-login.js",
-    "test-data-fetching": "node scripts/test-data-fetching.js"
+    "test-data-fetching": "node scripts/test-data-fetching.js",
+    "test-content-upload": "node scripts/test-content-upload.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
