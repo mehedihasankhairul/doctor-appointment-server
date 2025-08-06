@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema({
   },
   last_login: {
     type: Date
+  },
+  is_demo: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true, // Adds createdAt and updatedAt

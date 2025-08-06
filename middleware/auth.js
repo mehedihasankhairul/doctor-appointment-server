@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { getCollection, toObjectId } from '../config/database.js';
+import User from '../models/User.js'; // Use the Mongoose model
 
 // Authenticate JWT token
 export const authenticateToken = async (req, res, next) => {
@@ -11,37 +11,22 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    // Handle demo token for development
-    if (token === 'demo-doctor-token' && process.env.NODE_ENV !== 'production') {
-      req.user = {
-        id: 'demo-doctor-id',
-        email: 'doctor@example.com',
-        full_name: 'Dr. Demo',
-        role: 'doctor'
-      };
-      return next();
-    }
-
     // Verify JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Bypass ObjectId conversion for demo users
+    // Handle demo doctor - don't try to fetch from database
     if (decoded.id === 'demo-doctor-id') {
       req.user = {
         id: decoded.id,
         email: decoded.email,
-        full_name: decoded.full_name,
+        full_name: decoded.name || 'Dr. Ganesh',
         role: decoded.role
       };
       return next();
     }
 
-    // Get fresh user data from database
-    const usersCollection = getCollection('users');
-    const user = await usersCollection.findOne(
-      { _id: toObjectId(decoded.id) },
-      { projection: { email: 1, full_name: 1, role: 1 } }
-    );
+    // Get fresh user data from database using Mongoose
+    const user = await User.findById(decoded.id).select('email full_name role');
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid token - user not found' });
@@ -74,20 +59,17 @@ export const optionalAuth = async (req, res, next) => {
 
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      const usersCollection = getCollection('users');
-      const user = await usersCollection.findOne(
-        { _id: toObjectId(decoded.id) },
-        { projection: { email: 1, full_name: 1, role: 1 } }
-      );
 
-      if (user) {
-        req.user = {
-          id: user._id.toString(),
-          email: user.email,
-          full_name: user.full_name,
-          role: user.role
-        };
+      if (decoded.id) {
+        const user = await User.findById(decoded.id).select('email full_name role');
+        if (user) {
+          req.user = {
+            id: user._id.toString(),
+            email: user.email,
+            full_name: user.full_name,
+            role: user.role
+          };
+        }
       }
     }
     

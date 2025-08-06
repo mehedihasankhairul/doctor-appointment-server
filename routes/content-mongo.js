@@ -150,9 +150,27 @@ router.post('/', authenticateToken, requireRole(['admin', 'doctor']), validateCo
   try {
     const contentData = {
       ...req.body,
-      author: req.user.id,
       published_date: req.body.is_published ? new Date() : null
     };
+
+    // Handle demo doctor - create a dummy User record if needed
+    if (req.user.id === 'demo-doctor-id') {
+      // Check if demo user exists, create if not
+      let demoUser = await User.findOne({ email: 'doctor@drganeshcs.com' });
+      if (!demoUser) {
+        demoUser = new User({
+          email: 'doctor@drganeshcs.com',
+          full_name: 'Dr. Ganesh',
+          role: 'doctor',
+          password_hash: await User.hashPassword('temp123'), // temporary password
+          is_demo: true
+        });
+        await demoUser.save();
+      }
+      contentData.author = demoUser._id;
+    } else {
+      contentData.author = req.user.id;
+    }
 
     const content = new Content(contentData);
     await content.save();
