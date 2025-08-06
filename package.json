@@ -10,6 +10,7 @@
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
     "create-admin": "node scripts/create-admin.js",
+    "create-admin-production": "node scripts/create-admin-production.js",
     "test-admin": "node scripts/test-admin-login.js"
   },
   "dependencies": {
