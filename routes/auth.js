@@ -106,9 +106,9 @@ router.post('/doctor-login', async (req, res) => {
           specialization: 'Cardiology & Medicine'
         };
       } else if (email === 'admin@drganeshcs.com' && password === 'ganeshcs123') {
-        // Hardcoded admin credentials
+        // Hardcoded admin credentials using real database ID
         user = {
-          id: 'admin-user-id',
+          id: '68939ff5a66552100667ebdd', // Real database ID
           name: 'Dr. Ganesh Admin',
           email: 'admin@drganeshcs.com',
           role: 'admin',

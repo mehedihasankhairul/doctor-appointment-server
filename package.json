@@ -11,7 +11,8 @@
     "seed": "node scripts/seed.js",
     "create-admin": "node scripts/create-admin.js",
     "create-admin-production": "node scripts/create-admin-production.js",
-    "test-admin": "node scripts/test-admin-login.js"
+    "test-admin": "node scripts/test-admin-login.js",
+    "test-data-fetching": "node scripts/test-data-fetching.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
