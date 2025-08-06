@@ -96,17 +96,43 @@ router.post('/doctor-login', async (req, res) => {
         return res.status(400).json({ error: 'Email and password are required' });
       }
       
-      // Check if it's the doctor's email
-      if (email === 'doctor@drganeshcs.com' && password === 'DrGanesh2024!') {
+      // First check database for admin/doctor users
+      const dbUser = await User.findOne({ 
+        email, 
+        $or: [{ role: 'doctor' }, { role: 'admin' }] 
+      }).select('+password_hash');
+      
+      if (dbUser) {
+        // Verify password against database user
+        const isValidPassword = await dbUser.comparePassword(password);
+        if (!isValidPassword) {
+          return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        
+        // Update last login
+        dbUser.last_login = new Date();
+        await dbUser.save();
+        
         user = {
-          id: 'demo-doctor-id',
-          name: 'Dr. Ganesh',
-          email: 'doctor@drganeshcs.com',
-          role: 'doctor',
-          specialization: 'Cardiology & Medicine'
+          id: dbUser.id,
+          name: dbUser.full_name,
+          email: dbUser.email,
+          role: dbUser.role,
+          specialization: dbUser.role === 'doctor' ? 'Cardiology & Medicine' : 'Administrator'
         };
       } else {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        // Fallback to hardcoded doctor credentials
+        if (email === 'doctor@drganeshcs.com' && password === 'DrGanesh2024!') {
+          user = {
+            id: 'demo-doctor-id',
+            name: 'Dr. Ganesh',
+            email: 'doctor@drganeshcs.com',
+            role: 'doctor',
+            specialization: 'Cardiology & Medicine'
+          };
+        } else {
+          return res.status(401).json({ error: 'Invalid credentials' });
+        }
       }
     }
 
